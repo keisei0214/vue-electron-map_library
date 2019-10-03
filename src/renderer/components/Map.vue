@@ -17,6 +17,7 @@ import Feature from 'ol/Feature'
 import VectorSource from 'ol/source/Vector'
 import VectorLayer from 'ol/layer/Vector'
 import { Icon, Style } from 'ol/style'
+import Overlay from 'ol/Overlay'
 
 export default {
   name: 'mapview',
@@ -35,7 +36,7 @@ export default {
     initialize () {
       this.createMap()
       this.mapview.on('click', ev => {
-        var lonlat = transform(ev.coordinate, 'EPSG:3857', 'EPSG:4326')
+        const lonlat = transform(ev.coordinate, 'EPSG:3857', 'EPSG:4326')
         console.log('clicked at ' + lonlat)
         this.selectLatLong = lonlat
         this.$emit('clicked')
@@ -76,7 +77,7 @@ export default {
         source: new OSM()
       })
 
-      var rome = new Feature({
+      const rome = new Feature({
         geometry: new Point(transform([139.326956, 35.738493], 'EPSG:4326', 'EPSG:3857')),
         name: 'test test'
       })
@@ -87,10 +88,10 @@ export default {
           src: require('@/assets/marker.png')
         })
       }))
-      var vectorSource = new VectorSource({
+      const vectorSource = new VectorSource({
         features: [rome]
       })
-      var vectorLayer = new VectorLayer({
+      const vectorLayer = new VectorLayer({
         source: vectorSource
       })
 
@@ -105,6 +106,29 @@ export default {
           minZoom: 5,
           maxZoom: 18
         })
+      })
+
+      const element = this.$el.querySelector('#popup')
+      const popup = new Overlay({
+        element: element,
+        positioning: 'bottom-center',
+        stopEvent: false,
+        offset: [0, -50]
+      })
+      this.mapview.addOverlay(popup)
+
+      this.mapview.on('singleclick', function (evt) {
+        const name = evt.map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+          return feature.get('name')
+        })
+        if (name) {
+          console.log(name)
+          const coordinate = evt.coordinate
+          element.innerHTML = '<p>You clicked here:</p>'
+          popup.setPosition(coordinate)
+        } else {
+          element.innerHTML = ''
+        }
       })
     }
   }
