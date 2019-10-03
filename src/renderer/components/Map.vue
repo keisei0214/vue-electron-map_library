@@ -1,6 +1,9 @@
 <template>
-  <div id="OSMCanvas"></div>
+  <div id="canvas">
+    <div id="popup"></div>
+  </div>
 </template>
+
 <script>
 import 'ol/ol.css'
 import { transform } from 'ol/proj'
@@ -9,6 +12,11 @@ import View from 'ol/View'
 import TitleLayer from 'ol/layer/Tile'
 import OSM from 'ol/source/OSM'
 import XYZ from 'ol/source/XYZ'
+import Point from 'ol/geom/Point'
+import Feature from 'ol/Feature'
+import VectorSource from 'ol/source/Vector'
+import VectorLayer from 'ol/layer/Vector'
+import { Icon, Style } from 'ol/style'
 
 export default {
   name: 'mapview',
@@ -68,10 +76,28 @@ export default {
         source: new OSM()
       })
 
+      var rome = new Feature({
+        geometry: new Point(transform([139.326956, 35.738493], 'EPSG:4326', 'EPSG:3857')),
+        name: 'test test'
+      })
+      rome.setStyle(new Style({
+        image: new Icon({
+          color: 'red',
+          crossOrigin: 'anonymous',
+          src: require('@/assets/marker.png')
+        })
+      }))
+      var vectorSource = new VectorSource({
+        features: [rome]
+      })
+      var vectorLayer = new VectorLayer({
+        source: vectorSource
+      })
+
       this.mapview = new Map({
-        target: 'OSMCanvas',
+        target: 'canvas',
         layers: [
-          this.tile.osmMap, this.tile.whiteMap, this.tile.airMap
+          this.tile.osmMap, this.tile.whiteMap, this.tile.airMap, vectorLayer
         ],
         view: new View({
           center: transform([139.326956, 35.738493], 'EPSG:4326', 'EPSG:3857'),
@@ -86,7 +112,7 @@ export default {
 </script>
 
 <style scoped>
-#OSMCanvas {
+#canvas {
   width: 100%;
   height: 100%;
 }
