@@ -1,6 +1,10 @@
 <template>
   <div id="canvas">
-    <div id="popup"></div>
+    <div id="map"></div>
+    <div id="popup" class="ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content">{{name}}</div>
+    </div>
   </div>
 </template>
 
@@ -29,12 +33,14 @@ export default {
         whiteMap: null,
         osmMap: null,
         airMap: null
-      }
+      },
+      name: null
     }
   },
   methods: {
     initialize () {
       this.createMap()
+      this.setPopup()
       this.mapview.on('click', ev => {
         const lonlat = transform(ev.coordinate, 'EPSG:3857', 'EPSG:4326')
         console.log('clicked at ' + lonlat)
@@ -77,11 +83,11 @@ export default {
         source: new OSM()
       })
 
-      const rome = new Feature({
+      const marker = new Feature({
         geometry: new Point(transform([139.326956, 35.738493], 'EPSG:4326', 'EPSG:3857')),
         name: 'test test'
       })
-      rome.setStyle(new Style({
+      marker.setStyle(new Style({
         image: new Icon({
           color: 'red',
           crossOrigin: 'anonymous',
@@ -89,14 +95,14 @@ export default {
         })
       }))
       const vectorSource = new VectorSource({
-        features: [rome]
+        features: [marker]
       })
       const vectorLayer = new VectorLayer({
         source: vectorSource
       })
 
       this.mapview = new Map({
-        target: 'canvas',
+        target: 'map',
         layers: [
           this.tile.osmMap, this.tile.whiteMap, this.tile.airMap, vectorLayer
         ],
@@ -107,37 +113,91 @@ export default {
           maxZoom: 18
         })
       })
-
-      const element = this.$el.querySelector('#popup')
+    },
+    setPopup () {
+      const popupElement = this.$el.querySelector('#popup')
       const popup = new Overlay({
-        element: element,
-        positioning: 'bottom-center',
-        stopEvent: false,
-        offset: [0, -50]
+        element: popupElement,
+        autoPan: true,
+        autoPanAnimation: {
+          duration: 250
+        }
       })
       this.mapview.addOverlay(popup)
+
+      const closer = this.$el.querySelector('#popup-closer')
+      closer.onclick = function () {
+        popup.setPosition(undefined)
+        closer.blur()
+        return false
+      }
 
       this.mapview.on('singleclick', function (evt) {
         const name = evt.map.forEachFeatureAtPixel(evt.pixel, function (feature) {
           return feature.get('name')
         })
         if (name) {
-          console.log(name)
           const coordinate = evt.coordinate
-          element.innerHTML = '<p>You clicked here:</p>'
           popup.setPosition(coordinate)
+          this.name = name + Math.random()
         } else {
-          element.innerHTML = ''
+          popup.setPosition(undefined)
+          closer.blur()
         }
-      })
+      }.bind(this))
     }
   }
 }
 </script>
 
 <style scoped>
-#canvas {
+#canvas,
+#map {
   width: 100%;
   height: 100%;
+}
+
+.ol-popup {
+  position: absolute;
+  background-color: white;
+  -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  bottom: 12px;
+  left: -50px;
+  min-width: 280px;
+}
+.ol-popup:after,
+.ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 48px;
+  margin-left: -10px;
+}
+.ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 48px;
+  margin-left: -11px;
+}
+.ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  top: 2px;
+  right: 8px;
+}
+.ol-popup-closer:after {
+  content: "✖";
 }
 </style>
