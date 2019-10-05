@@ -20,8 +20,9 @@ import Point from 'ol/geom/Point'
 import Feature from 'ol/Feature'
 import VectorSource from 'ol/source/Vector'
 import VectorLayer from 'ol/layer/Vector'
-import { Icon, Style } from 'ol/style'
+import { Icon, Style, Fill, Stroke } from 'ol/style'
 import Overlay from 'ol/Overlay'
+import Text from 'ol/style/Text'
 
 export default {
   name: 'mapview',
@@ -92,6 +93,16 @@ export default {
           color: 'red',
           crossOrigin: 'anonymous',
           src: require('@/assets/marker.png')
+        }),
+        text: new Text({
+          fill: new Fill({ color: 'red' }),
+          stroke: new Stroke({ color: '#ffffff', width: 1 }),
+          scale: 1.5,
+          textAlign: 'left',
+          textBaseline: 'bottom',
+          offsetY: 0,
+          text: 'test TEXTaa\naaaaaaaaaaaaaa\nsssss',
+          font: '10px sans-serif'
         })
       }))
       const vectorSource = new VectorSource({
