@@ -3,7 +3,7 @@
     <div id="map"></div>
     <div id="popup" class="ol-popup">
       <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-      <div id="popup-content">{{name}}</div>
+      <div id="popup-content">{{popText}}</div>
     </div>
   </div>
 </template>
@@ -35,7 +35,9 @@ export default {
         osmMap: null,
         airMap: null
       },
-      name: null
+      popText: null,
+      features: [],
+      vectorSource: null
     }
   },
   methods: {
@@ -84,33 +86,14 @@ export default {
         source: new OSM()
       })
 
-      const marker = new Feature({
-        geometry: new Point(transform([139.326956, 35.738493], 'EPSG:4326', 'EPSG:3857')),
-        name: 'test test'
-      })
-      marker.setStyle(new Style({
-        image: new Icon({
-          color: 'red',
-          crossOrigin: 'anonymous',
-          src: require('@/assets/marker.png')
-        }),
-        text: new Text({
-          fill: new Fill({ color: 'red' }),
-          stroke: new Stroke({ color: '#ffffff', width: 1 }),
-          scale: 1.5,
-          textAlign: 'left',
-          textBaseline: 'bottom',
-          offsetY: 0,
-          text: 'test TEXTaa\naaaaaaaaaaaaaa\nsssss',
-          font: '10px sans-serif'
-        })
-      }))
-      const vectorSource = new VectorSource({
-        features: [marker]
+      this.vectorSource = new VectorSource({
+        features: []
       })
       const vectorLayer = new VectorLayer({
-        source: vectorSource
+        source: this.vectorSource
       })
+
+      this.addMarker(transform([139.326956, 35.738493], 'EPSG:4326', 'EPSG:3857'), 'test Text', 'popup Text', 'red')
 
       this.mapview = new Map({
         target: 'map',
@@ -124,7 +107,12 @@ export default {
           maxZoom: 18
         })
       })
+
+      this.mapview.on('contextmenu', ev => {
+        this.addMarker(ev.coordinate, 'add text', 'add pop text', 'green')
+      })
     },
+
     setPopup () {
       const popupElement = this.$el.querySelector('#popup')
       const popup = new Overlay({
@@ -144,18 +132,44 @@ export default {
       }
 
       this.mapview.on('singleclick', function (evt) {
-        const name = evt.map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-          return feature.get('name')
+        const popText = evt.map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+          return feature.get('popText')
         })
-        if (name) {
+        if (popText) {
           const coordinate = evt.coordinate
           popup.setPosition(coordinate)
-          this.name = name + Math.random()
+          this.popText = popText
         } else {
           popup.setPosition(undefined)
           closer.blur()
         }
       }.bind(this))
+    },
+    addMarker (coordinate, text, popText, color) {
+      const marker = new Feature({
+        geometry: new Point(coordinate),
+        popText: popText
+      })
+      marker.setStyle(new Style({
+        image: new Icon({
+          color: color,
+          crossOrigin: 'anonymous',
+          src: require('@/assets/marker.png')
+        }),
+        text: new Text({
+          fill: new Fill({ color: color }),
+          stroke: new Stroke({ color: '#ffffff', width: 1 }),
+          scale: 1.5,
+          textAlign: 'left',
+          textBaseline: 'bottom',
+          offsetY: 0,
+          text: text,
+          font: '10px sans-serif'
+        })
+      }))
+
+      this.features.push(marker)
+      this.vectorSource.addFeature(marker)
     }
   }
 }
