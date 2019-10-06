@@ -19,7 +19,7 @@ export default {
         green: new L.Icon({
           iconUrl: require('@/assets/marker/green.png'),
           iconSize: [24, 40],
-          popupAnchor: [0, -20],
+          popupAnchor: [0, -40],
           iconAnchor: [12, 45]
         })
       },
@@ -36,7 +36,7 @@ export default {
     )
     L.control.layers(this.tile, null, null).addTo(this.map)
 
-    this.addMarker(35.684035, 139.758212, this.icons.green, '<h1>test add</h1>')
+    this.addMarker(35.684035, 139.758212, this.icons.green, '<h1>test add</h1>', 'test</br>label')
 
     this.map.on('contextmenu', function (e) {
       this.addMarker(e.latlng.lat, e.latlng.lng, this.icons.green, 'clicked')
@@ -44,8 +44,11 @@ export default {
     }.bind(this))
   },
   methods: {
-    addMarker (lat, lon, icon, popup) {
-      const marker = L.marker([lat, lon], { icon: icon }).bindPopup(popup).addTo(this.map)
+    addMarker (lat, lon, icon, popup, label) {
+      const marker = L.marker([lat, lon], { icon: icon })
+        .bindPopup(popup)
+        .bindTooltip(label, { permanent: true, direction: 'right', className: 'green' }).openTooltip()
+        .addTo(this.map)
       this.markers.push(marker)
     },
     removeMarker (i) {
@@ -62,5 +65,20 @@ export default {
 #map {
   height: 100%;
   width: 100%;
+}
+</style>
+<style>
+.leaflet-tooltip.green {
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  font-size: 1rem;
+  color: green;
+  font-weight: bolder;
+  text-shadow: 1px 1px 0 #fff;
+}
+
+.leaflet-tooltip-right:before {
+  border-right-color: transparent;
 }
 </style>
