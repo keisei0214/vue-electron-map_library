@@ -1,8 +1,11 @@
-# vue-electron
+# vue-electron-map_library 
+leafletとopenlayersをelectron+vueで動かすための調査。openlayersの実装は、ブランチ openlayersに。
 
-> An electron-vue project
+## 所感
+* 基本的な機能なら、leafletの方が簡単に書ける
+* カスタマイズをかなりするのなら、openlayersの方が管理しやすそう
 
-#### Build Setup
+# Build Setup
 
 ``` bash
 # install dependencies
