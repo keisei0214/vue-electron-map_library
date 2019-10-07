@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -44,6 +44,11 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipcMain.on('get-marker', (event, arg) => {
+  console.log(arg)
+  event.sender.send('reply', [35.6825 + Math.random() * 0.1, 139.752778])
 })
 
 /**

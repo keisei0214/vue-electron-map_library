@@ -5,6 +5,7 @@
 <script>
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { ipcRenderer } from 'electron'
 
 export default {
   data: function () {
@@ -56,6 +57,13 @@ export default {
         const m = this.markers.splice(i, i + 1)[0]
         this.map.removeLayer(m)
       }
+    },
+    getPoint () {
+      ipcRenderer.send('get-marker', 1124)
+      ipcRenderer.on('reply', (event, arg) => {
+        console.log(arg)
+        this.addMarker(arg[0], arg[1], this.icons.green, 'getPoint')
+      })
     }
   }
 }
