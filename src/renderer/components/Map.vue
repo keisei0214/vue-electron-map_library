@@ -5,7 +5,7 @@
 <script>
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { ipcRenderer } from 'electron'
+import { greenIcon } from './mapIcons/icons.js'
 
 export default {
   data: function () {
@@ -16,14 +16,6 @@ export default {
         airMap: null
       },
       map: null,
-      icons: {
-        green: new L.Icon({
-          iconUrl: require('@/assets/marker/green.png'),
-          iconSize: [24, 40],
-          popupAnchor: [0, -40],
-          iconAnchor: [12, 45]
-        })
-      },
       markers: []
     }
   },
@@ -37,10 +29,10 @@ export default {
     )
     L.control.layers(this.tile, null, null).addTo(this.map)
 
-    this.addMarker(35.684035, 139.758212, this.icons.green, '<h1>test add</h1>', 'test</br>label')
+    this.addMarker(35.684035, 139.758212, greenIcon, '<h1>test add</h1>', 'test</br>label')
 
     this.map.on('contextmenu', function (e) {
-      this.addMarker(e.latlng.lat, e.latlng.lng, this.icons.green, 'clicked')
+      this.addMarker(e.latlng.lat, e.latlng.lng, greenIcon, 'clicked', 'new icon')
       this.removeMarker(0)
     }.bind(this))
   },
@@ -48,7 +40,7 @@ export default {
     addMarker (lat, lon, icon, popup, label) {
       const marker = L.marker([lat, lon], { icon: icon })
         .bindPopup(popup)
-        .bindTooltip(label, { permanent: true, direction: 'right', className: 'green' }).openTooltip()
+        .bindTooltip(label, { permanent: true, direction: 'right', className: 'icon' }).openTooltip()
         .addTo(this.map)
       this.markers.push(marker)
     },
@@ -57,13 +49,6 @@ export default {
         const m = this.markers.splice(i, i + 1)[0]
         this.map.removeLayer(m)
       }
-    },
-    getPoint () {
-      ipcRenderer.send('get-marker', 1124)
-      ipcRenderer.on('reply', (event, arg) => {
-        console.log(arg)
-        this.addMarker(arg[0], arg[1], this.icons.green, 'getPoint')
-      })
     }
   }
 }

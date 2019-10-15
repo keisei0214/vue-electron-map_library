@@ -1,6 +1,7 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
+import { menu } from './menu/menu'
 
 /**
  * Set `__static` path to static files in production
@@ -46,10 +47,7 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on('get-marker', (event, arg) => {
-  console.log(arg)
-  event.sender.send('reply', [35.6825 + Math.random() * 0.1, 139.752778])
-})
+Menu.setApplicationMenu(menu)
 
 /**
  * Auto Updater
