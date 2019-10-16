@@ -31,6 +31,8 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  Menu.setApplicationMenu(menu)
 }
 
 app.on('ready', createWindow)
@@ -46,8 +48,6 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-Menu.setApplicationMenu(menu)
 
 /**
  * Auto Updater

@@ -4,7 +4,7 @@ const templateMenu = [
   {
     label: 'File',
     submenu: [
-      process.platform === 'darwin' ? { role: 'close' } : { role: 'quit' }
+      { role: 'quit' }
     ]
   },
   {
